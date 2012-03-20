@@ -1,0 +1,3 @@
+guard 'evax' do
+  watch(%r{^app/javascripts/.*\.js$})
+end

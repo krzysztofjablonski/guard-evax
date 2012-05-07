@@ -6,12 +6,15 @@ module Guard
   class Evax < Guard
 
     autoload :Evax, 'evax'
+    autoload :Notifier, 'guard/evax/notifier'
 
     def initialize(watchers = [], options = {})
       super
 
       options[:run_at_start] ||= true
       options[:assets_file] ||= "config/assets.yml"
+      options[:after_block] ||= lambda {}
+      options[:notify] ||= true
     end
 
     def start
@@ -35,6 +38,10 @@ module Guard
     end
 
   private
+    def notify?
+      !!options[:notify]
+    end
+
     def run_evax
       UI.info 'Running evax', :reset => true
       started_at = Time.now
@@ -44,14 +51,13 @@ module Guard
 
       Evax.new(assets_path, relative_path).build
 
-      widgets_js = File.read( File.expand_path( "#{relative_path}/public/assets/widgets.js" ) )
-      File.open( File.expand_path( "#{relative_path}/public/assets/widgets.js" ), "w" ) { |f| f.write widgets_js }
+      options[:after_block].call
 
-      widgets_filepath    = File.expand_path "#{relative_path}/public/assets/widgets.js"
-      widgets_filepath_v2 = File.expand_path "#{relative_path}/public/javascripts/widget/v2/widgets.js"
-      FileUtils.mv(widgets_filepath, widgets_filepath_v2)
+      duration = (Time.now - started_at).to_f.round(4)
 
-      UI.info "Evax finished in #{(Time.now - started_at).to_f} sec", :reset => true
+      Notifier::notify(duration) if notify?
+
+      UI.info "Evax finished in #{duration} s", :reset => true
     end
 
   end

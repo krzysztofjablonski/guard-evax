@@ -1,3 +1,4 @@
 guard 'evax' do
+  watch %r{^config/assets.yml$}
   watch(%r{^app/javascripts/.*\.js$})
 end

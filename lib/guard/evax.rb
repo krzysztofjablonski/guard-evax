@@ -11,10 +11,12 @@ module Guard
     def initialize(watchers = [], options = {})
       super
 
-      options[:run_at_start] ||= true
-      options[:assets_file] ||= "config/assets.yml"
-      options[:after_block] ||= lambda {}
-      options[:notify] ||= true
+      self.options = {
+        :run_at_start => false,
+        :notify => true,
+        :assets_file => "config/assets.yml",
+        :after_block => lambda {}
+      }.merge!(options)
     end
 
     def start
